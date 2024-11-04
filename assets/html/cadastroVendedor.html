@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Vendedor</title>    
+    <script src="../js/cadastro.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastro de Vendedor</h1>
+        <form id="formCadastro" action="/Vendedor" method="POST">
+            <div class="form-group">
+                <label id="labelUsuario" for="usuario">Usuário:</label>
+                <input type="text" id="usuario" name="usuario" required>
+            </div>
+            <div class="form-group">
+                <label id="labelSenha" for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required>
+                <button type="button" id="verSenha">Mostrar/Ocultar Senha</button>
+            </div>
+            <button type="submit">Cadastrar</button>
+            <div id="msgError" style="display: none; color: red;"></div>
+            <div id="msgSuccess" style="display: none; color: green;"></div>
+        </form>
+    </div>
+</body>
+</html>
