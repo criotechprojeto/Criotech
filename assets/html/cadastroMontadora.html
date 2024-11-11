@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Montadora</title>
+    <script src="../js/cadastroMontadora.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastro de Montadora</h1>
+        <form id="formCadastro" action="/Montadora" method="POST">
+            <div class="form-group">
+                <label id="labelCnpj" for="cnpj">CNPJ:</label>
+                <input type="text" id="cnpj" name="cnpj" required>
+            </div>
+            <div class="form-group">
+                <label id="labelRazaoSocial" for="razaoSocial">Razão Social:</label>
+                <input type="text" id="razaoSocial" name="razaoSocial" required>
+            </div>
+            <div class="form-group">
+                <label id="labelMarca" for="marca">Marca:</label>
+                <input type="text" id="marca" name="marca" required>
+            </div>
+            <div class="form-group">
+                <label id="labelContato" for="contato">Contato:</label>
+                <input type="text" id="contato" name="contato" required>
+            </div>
+            <div class="form-group">
+                <label id="labelTelefoneComercial" for="telefoneComercial">Telefone Comercial:</label>
+                <input type="text" id="telefoneComercial" name="telefoneComercial" required>
+            </div>
+            <div class="form-group">
+                <label id="labelCelular" for="celular">Celular:</label>
+                <input type="text" id="celular" name="celular" required>
+            </div>
+            <button type="submit">Cadastrar</button>
+            <div id="msgError" style="display: none; color: red;"></div>
+            <div id="msgSuccess" style="display: none; color: green;"></div>
+        </form>
+    </div>
+</body>
+</html>

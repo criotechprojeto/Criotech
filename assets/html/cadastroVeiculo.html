@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Veículo</title>    
+    <script src="../js/cadastroVeiculo.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastro de Veículo</h1>
+        <form id="formCadastro" action="/Veiculo" method="POST">
+            <div class="form-group">
+                <label id="labelChassi" for="chassi">Número do Chassi:</label>
+                <input type="text" id="chassi" name="chassi" required>
+            </div>
+            <div class="form-group">
+                <label id="labelPlaca" for="placa">Placa:</label>
+                <input type="text" id="placa" name="placa" required>
+            </div>
+            <div class="form-group">
+                <label id="labelMarca" for="marca">Marca:</label>
+                <input type="text" id="marca" name="marca" required>
+            </div>
+            <div class="form-group">
+                <label id="labelModelo" for="modelo">Modelo:</label>
+                <input type="text" id="modelo" name="modelo" required>
+            </div>
+            <div class="form-group">
+                <label id="labelAnoFabricacao" for="anoFabricacao">Ano de Fabricação:</label>
+                <input type="number" id="anoFabricacao" name="anoFabricacao" required>
+            </div>
+            <div class="form-group">
+                <label id="labelAnoModelo" for="anoModelo">Ano do Modelo:</label>
+                <input type="number" id="anoModelo" name="anoModelo" required>
+            </div>
+            <div class="form-group">
+                <label id="labelCor" for="cor">Cor:</label>
+                <input type="text" id="cor" name="cor" required>
+            </div>
+            <div class="form-group">
+                <label id="labelValor" for="valor">Valor:</label>
+                <input type="number" id="valor" name="valor" required>
+            </div>
+            <button type="submit">Cadastrar</button>
+            <div id="msgError" style="display: none; color: red;"></div>
+            <div id="msgSuccess" style="display: none; color: green;"></div>
+        </form>
+    </div>
+</body>
+</html>
