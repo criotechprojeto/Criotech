@@ -95,3 +95,20 @@ module.exports.inserirMontadora = async (cnpj, razaoSocial, marca, contato, tele
         throw new Error('Erro ao cadastrar montadora: ' + error.message);
     }
 };
+
+module.exports.atualizarCliente = async (codigo, cpf, nome, bairro, cidade, estado, telefone, celular, renda) => {
+    try {
+        return new Promise((resolve, reject) => {
+            const query = 'UPDATE Cliente SET cpf = ?, nome = ?, endereco_bairro = ?, endereco_cidade = ?, endereco_estado = ?, telefone_residencial = ?, celular = ?, renda = ? WHERE codigo = ?';
+            db.query(query, [cpf, nome, bairro, cidade, estado, telefone, celular, renda, codigo], (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(results.affectedRows);  // Retorna o número de linhas afetadas
+            });
+        });
+    } catch (error) {
+        throw new Error('Erro ao atualizar cliente: ' + error.message);
+    }
+};
