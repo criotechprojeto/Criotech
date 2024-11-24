@@ -6,6 +6,7 @@ router.post('/Vendedor', CONTROLERS.cadastrarVendedor);
 router.post('/login', CONTROLERS.login);
 router.post('/Veiculo', CONTROLERS.cadastrarVeiculo);
 router.post('/Cliente', CONTROLERS.cadastrarCliente);
-router.post('/Montadora', CONTROLERS.cadastrarMontadora); 
-
+router.post('/Montadora', CONTROLERS.cadastrarMontadora);
+router.put('/Cliente/:id', CONTROLERS.atualizarCliente);
+router.get('/Cliente/buscar/:nomeOuCpf', CONTROLERS.buscarCliente);
 module.exports = router;

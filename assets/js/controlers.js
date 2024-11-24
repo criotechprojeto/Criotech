@@ -118,3 +118,69 @@ module.exports.cadastrarMontadora = async (req, res) => {
         res.status(400).json(json); 
     }
 };
+
+module.exports.buscarCliente = async (req, res) => {
+    const { nomeOuCpf } = req.params;
+
+    let json = { error: '', result: {} };
+
+    try {
+        let cliente = await SERVICES.buscarClientePorNomeOuCpf(nomeOuCpf);
+
+        if (cliente) {
+            json.result = cliente;
+            return res.json(json); // Retorna um JSON válido
+        } else {
+            json.error = `Cliente não encontrado com o nome ou CPF: ${nomeOuCpf}`;
+            return res.status(404).json(json); // Retorna um JSON de erro com status 404
+        }
+    } catch (error) {
+        console.error('Erro ao buscar cliente:', error);
+        json.error = `Erro ao buscar cliente: ${error.message}`;
+        return res.status(500).json(json);  // Retorna um JSON com status 500 em caso de erro
+    }
+};
+
+module.exports.atualizarCliente = async (req, res) => {
+    let { cpf, nome, bairro, cidade, estado, telefone, celular, renda, senha } = req.body;  // Recebe os dados do corpo da requisição
+    let { nomeOuCpf } = req.params;  // Recebe o nome ou CPF da URL (usado para buscar o cliente)
+
+    let json = { error: '', result: {} };
+
+    // Verificando se todos os campos obrigatórios estão presentes
+    if (!nome || !bairro || !cidade || !estado || !telefone || !celular || !renda || !senha) {
+        json.error = 'Todos os campos são obrigatórios, incluindo a senha para confirmação!';
+        return res.status(400).json(json);
+    }
+
+    if (!cpf) {
+        json.error = 'CPF do cliente é obrigatório';
+        return res.status(400).json(json); // CPF não fornecido no corpo da requisição
+    }
+
+    try {
+        // Buscar o cliente pelo nome ou CPF
+        let cliente = await SERVICES.buscarClientePorNomeOuCpf(nomeOuCpf);
+
+        if (!cliente) {
+            json.error = `Cliente não encontrado com o nome ou CPF: ${nomeOuCpf}`;
+            return res.status(404).json(json); // Cliente não encontrado
+        }
+
+        // Atualizar o cliente encontrado
+        let result = await SERVICES.atualizarCliente(cliente.cpf, nome, bairro, cidade, estado, telefone, celular, renda);
+
+        if (result > 0) {  // Verifique se afetou alguma linha
+            json.result = { cpf: cliente.cpf, nome: cliente.nome };
+            return res.json(json);  // Cliente atualizado com sucesso
+        } else {
+            json.error = `Cliente com CPF ${cliente.cpf} não encontrado ou nenhum dado alterado.`;
+            return res.status(404).json(json);
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar cliente:', error);
+        json.error = `Erro ao atualizar cliente: ${error.message}`;
+        return res.status(500).json(json);  // Erro no servidor
+    }
+};
+

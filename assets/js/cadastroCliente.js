@@ -11,10 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let msgError = document.querySelector('#msgError');
     let msgSuccess = document.querySelector('#msgSuccess');
 
-    // Validação do formulário, se necessário (ajustar conforme as regras específicas)
-    // Exemplo para o CPF, renda, etc.
-
-    // Envio do formulário
     document.querySelector('#formCadastro').addEventListener('submit', (e) => {
         e.preventDefault();
 

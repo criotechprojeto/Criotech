@@ -96,11 +96,16 @@ module.exports.inserirMontadora = async (cnpj, razaoSocial, marca, contato, tele
     }
 };
 
-module.exports.atualizarCliente = async (codigo, cpf, nome, bairro, cidade, estado, telefone, celular, renda) => {
+module.exports.atualizarCliente = async (cpf, novoCpf, nome, bairro, cidade, estado, telefone, celular, renda) => {
+    // Verifique se o CPF é válido
+    if (!cpf) {
+        throw new Error('CPF do cliente não fornecido ou inválido');
+    }
+
     try {
         return new Promise((resolve, reject) => {
-            const query = 'UPDATE Cliente SET cpf = ?, nome = ?, endereco_bairro = ?, endereco_cidade = ?, endereco_estado = ?, telefone_residencial = ?, celular = ?, renda = ? WHERE codigo = ?';
-            db.query(query, [cpf, nome, bairro, cidade, estado, telefone, celular, renda, codigo], (error, results) => {
+            const query = 'UPDATE Cliente SET cpf = ?, nome = ?, endereco_bairro = ?, endereco_cidade = ?, endereco_estado = ?, telefone_residencial = ?, celular = ?, renda = ? WHERE cpf = ?';
+            db.query(query, [novoCpf, nome, bairro, cidade, estado, telefone, celular, renda, cpf], (error, results) => {
                 if (error) {
                     reject(error);
                     return;
@@ -110,5 +115,30 @@ module.exports.atualizarCliente = async (codigo, cpf, nome, bairro, cidade, esta
         });
     } catch (error) {
         throw new Error('Erro ao atualizar cliente: ' + error.message);
+    }
+};
+
+module.exports.buscarClientePorNomeOuCpf = async (nomeOuCpf) => {
+    try {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT * FROM Cliente 
+                WHERE cpf = ? OR nome LIKE ?`;
+
+            db.query(query, [nomeOuCpf, `%${nomeOuCpf}%`], (error, results) => {
+                if (error) {
+                    reject(new Error('Erro ao buscar cliente: ' + error.message));
+                    return;
+                }
+
+                if (results.length > 0) {
+                    resolve(results[0]);
+                } else {
+                    resolve(null);
+                }
+            });
+        });
+    } catch (error) {
+        throw new Error('Erro ao buscar cliente: ' + error.message);
     }
 };
