@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venda de Veículo</title>    
+    <script src="../js/vendaVeiculo.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Venda de Veículo</h1>
+        <form id="formVenda" action="/Venda" method="POST">
+            <div class="form-group">
+                <label for="clienteCpf">CPF do Cliente:</label>
+                <input type="text" id="clienteCpf" name="clienteCpf" required>
+            </div>
+            <div class="form-group">
+                <label for="vendedorCodigo">Código do Vendedor:</label>
+                <input type="number" id="vendedorCodigo" name="vendedorCodigo" required>
+            </div>
+            <div class="form-group">
+                <label for="veiculoChassi">Número do Chassi:</label>
+                <input type="text" id="veiculoChassi" name="veiculoChassi" required>
+            </div>
+            <div class="form-group">
+                <label for="valorEntrada">Valor de Entrada:</label>
+                <input type="number" id="valorEntrada" name="valorEntrada" required>
+            </div>
+            <div class="form-group">
+                <label for="valorFinanciado">Valor Financiado:</label>
+                <input type="number" id="valorFinanciado" name="valorFinanciado" required>
+            </div>
+            <div class="form-group">
+                <label for="valorTotal">Valor Total:</label>
+                <input type="number" id="valorTotal" name="valorTotal" required>
+            </div>
+            <button type="submit">Finalizar Venda</button>
+            <div id="msgError" style="display: none; color: red;"></div>
+            <div id="msgSuccess" style="display: none; color: green;"></div>
+        </form>
+    </div>
+</body>
+</html>

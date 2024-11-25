@@ -72,7 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Evento de busca de cliente
     btnBuscar.addEventListener('click', () => {
-        const nomeOuCpf = document.querySelector('#campoBusca').value;
+        const nomeOuCpf = document.querySelector('#campoBusca').value.trim();
+        console.log('Valor de nomeOuCpf:', nomeOuCpf);  // Verifique o valor
         if (nomeOuCpf) {
             buscarCliente(nomeOuCpf);
         } else {

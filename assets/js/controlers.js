@@ -184,3 +184,91 @@ module.exports.atualizarCliente = async (req, res) => {
     }
 };
 
+
+module.exports.listarVeiculos = async (req, res) => {
+    let json = { error: '', result: [] };
+
+    try {
+        // Chama a função que busca todos os veículos disponíveis
+        let veiculos = await SERVICES.listarVeiculosDisponiveis();
+
+        if (veiculos.length > 0) {
+            json.result = veiculos;
+            return res.json(json);  // Retorna os veículos disponíveis em formato JSON
+        } else {
+            json.error = 'Nenhum veículo disponível para venda.';
+            return res.status(404).json(json);  // Retorna erro 404 caso não haja veículos
+        }
+    } catch (error) {
+        console.error('Erro ao listar veículos:', error);
+        json.error = `Erro ao listar veículos: ${error.message}`;
+        return res.status(500).json(json);  // Retorna erro 500 em caso de falha no servidor
+    }
+};
+
+module.exports.listarMontadorasParceiras = async (req, res) => {
+    let json = { error: '', result: [] };
+
+    try {
+        // Chama a função para listar as montadoras
+        let montadoras = await SERVICES.listarMontadoras();
+
+        if (montadoras && montadoras.length > 0) {
+            json.result = montadoras;
+            return res.json(json);  // Retorna as montadoras parceiras em formato JSON
+        } else {
+            json.error = 'Nenhuma montadora parceira encontrada.';
+            return res.status(404).json(json);  // Retorna erro 404 se não encontrar montadoras
+        }
+    } catch (error) {
+        console.error('Erro ao listar montadoras parceiras:', error);
+        json.error = `Erro ao listar montadoras: ${error.message}`;
+        return res.status(500).json(json);  // Retorna erro 500 em caso de falha no servidor
+    }
+};
+
+module.exports.registrarVenda = async (req, res) => {
+    let json = { error: '', result: {} };
+    let { clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal } = req.body;
+
+    // Verificando se todos os dados obrigatórios foram fornecidos
+    if (!clienteCpf || !vendedorCodigo || !veiculoChassi || !valorEntrada || !valorFinanciado || !valorTotal) {
+        json.error = 'Todos os campos são obrigatórios';
+        return res.status(400).json(json); // Retorna erro 400 caso algum campo obrigatório esteja ausente
+    }
+
+    try {
+        // Verificando se o cliente existe
+        let cliente = await SERVICES.buscarClientePorNomeOuCpf(clienteCpf);
+        if (!cliente) {
+            json.error = `Cliente com CPF ${clienteCpf} não encontrado.`;
+            return res.status(404).json(json); // Retorna erro 404 se o cliente não for encontrado
+        }
+
+        // Verificando se o vendedor existe
+        let vendedor = await SERVICES.buscarVendedorPorCodigo(vendedorCodigo);
+        if (!vendedor) {
+            json.error = `Vendedor com código ${vendedorCodigo} não encontrado.`;
+            return res.status(404).json(json); // Retorna erro 404 se o vendedor não for encontrado
+        }
+
+        // Verificando se o veículo existe e está disponível para venda
+        let veiculo = await SERVICES.buscarVeiculoPorChassi(veiculoChassi);
+        if (!veiculo) {
+            json.error = `Veículo com chassi ${veiculoChassi} não encontrado.`;
+            return res.status(404).json(json); // Retorna erro 404 se o veículo não for encontrado
+        }
+
+        // Inserir a venda no banco de dados
+        let data = new Date().toISOString().split('T')[0]; // Data no formato 'YYYY-MM-DD'
+        let vendaId = await SERVICES.inserirVenda(data, clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal);
+
+        // Retorna a resposta com o ID da venda registrada
+        json.result = { vendaId, clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal };
+        return res.json(json); // Retorna sucesso com os dados da venda registrada
+    } catch (error) {
+        console.error('Erro ao registrar venda:', error);
+        json.error = `Erro ao registrar venda: ${error.message}`;
+        return res.status(500).json(json); // Retorna erro 500 em caso de falha no servidor
+    }
+};

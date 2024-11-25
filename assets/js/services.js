@@ -142,3 +142,114 @@ module.exports.buscarClientePorNomeOuCpf = async (nomeOuCpf) => {
         throw new Error('Erro ao buscar cliente: ' + error.message);
     }
 };
+
+module.exports.listarVeiculosDisponiveis = async () => {
+    try {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT numero_chassi, placa, marca, modelo, ano_fabricacao, ano_modelo, cor, valor
+                FROM Veiculo
+                WHERE disponivel = 1`;  // Supondo que a coluna "disponivel" indica se o veículo está à venda
+
+            db.query(query, (error, results) => {
+                if (error) {
+                    reject(new Error('Erro ao listar veículos: ' + error.message));
+                    return;
+                }
+
+                resolve(results);  // Retorna os resultados da consulta
+            });
+        });
+    } catch (error) {
+        throw new Error('Erro ao listar veículos: ' + error.message);
+    }
+};
+
+module.exports.listarMontadoras = async () => {
+    try {
+        return new Promise((resolve, reject) => {
+            const query = `
+                SELECT cnpj, razao_social, marca, contato, telefone_comercial, celular
+                FROM Montadora
+            `;
+
+            /*console.log('Executando consulta SQL:', query);*/
+
+            db.query(query, (error, results) => {
+                if (error) {
+                    reject(new Error('Erro ao listar montadoras: ' + error.message));
+                    return;
+                }
+
+                resolve(results);
+            });
+        });
+    } catch (error) {
+        throw new Error('Erro ao listar montadoras: ' + error.message);
+    }
+};
+
+module.exports.buscarVeiculoPorChassi = async (chassi) => {
+    try {
+        return new Promise((resolve, reject) => {
+            const query = 'SELECT * FROM Veiculos WHERE numero_chassi = ?';
+            db.query(query, [chassi], (error, results) => {
+                if (error) {
+                    reject(new Error('Erro ao buscar veículo: ' + error.message));
+                    return;
+                }
+
+                if (results.length > 0) {
+                    resolve(results[0]);
+                } else {
+                    resolve(null);
+                }
+            });
+        });
+    } catch (error) {
+        throw new Error('Erro ao buscar veículo: ' + error.message);
+    }
+};
+
+module.exports.buscarVendedorPorCodigo = async (codigo) => {
+    try {
+        return new Promise((resolve, reject) => {
+            const query = 'SELECT * FROM Vendedores WHERE codigo = ?';
+            db.query(query, [codigo], (error, results) => {
+                if (error) {
+                    reject(new Error('Erro ao buscar vendedor: ' + error.message));
+                    return;
+                }
+
+                if (results.length > 0) {
+                    resolve(results[0]);
+                } else {
+                    resolve(null);
+                }
+            });
+        });
+    } catch (error) {
+        throw new Error('Erro ao buscar vendedor: ' + error.message);
+    }
+};
+
+module.exports.inserirVenda = async (data, clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal) => {
+    try {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'INSERT INTO Vendas (data, cliente_cpf, vendedor_codigo, veiculo_chassi, valor_entrada, valor_financiado, valor_total) ' +
+                'VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [data, clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal],
+                (error, results) => {
+                    if (error) {
+                        reject(new Error('Erro ao registrar venda: ' + error.message));
+                        return;
+                    }
+                    resolve(results.insertId);
+                }
+            );
+        });
+    } catch (error) {
+        throw new Error('Erro ao registrar venda: ' + error.message);
+    }
+};
