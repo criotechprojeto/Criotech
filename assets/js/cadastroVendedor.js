@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     msgError.style.display = 'none';
 
                     setTimeout(() => {
-                        window.location.href = '../html/LOGIN.html';
-                    }, 3000);
+                        window.location.href = '../html/login.html';
+                    }, 2000);
                 }
             })
             .catch(error => {

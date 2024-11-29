@@ -127,15 +127,12 @@ module.exports.buscarClientePorNomeOuCpf = async (nomeOuCpf) => {
 
             db.query(query, [nomeOuCpf, `%${nomeOuCpf}%`], (error, results) => {
                 if (error) {
+                    console.error('Erro no banco de dados:', error);
                     reject(new Error('Erro ao buscar cliente: ' + error.message));
                     return;
                 }
 
-                if (results.length > 0) {
-                    resolve(results[0]);
-                } else {
-                    resolve(null);
-                }
+                resolve(results); // Retorna todos os resultados
             });
         });
     } catch (error) {
@@ -191,65 +188,106 @@ module.exports.listarMontadoras = async () => {
 
 module.exports.buscarVeiculoPorChassi = async (chassi) => {
     try {
+        //console.log('Buscando veículo com chassi:', chassi);  // Log para depuração
+
         return new Promise((resolve, reject) => {
-            const query = 'SELECT * FROM Veiculos WHERE numero_chassi = ?';
+            const query = 'SELECT * FROM Veiculo WHERE numero_chassi = ?';
             db.query(query, [chassi], (error, results) => {
                 if (error) {
-                    reject(new Error('Erro ao buscar veículo: ' + error.message));
+                    console.error('Erro ao buscar veículo com chassi:', chassi, error);  // Log do erro com contexto
+                    reject(new Error(`Erro ao buscar veículo com chassi ${chassi}: ${error.message}`));
                     return;
                 }
 
                 if (results.length > 0) {
+                    //console.log('Veículo encontrado:', results[0]);  // Log de sucesso
                     resolve(results[0]);
                 } else {
-                    resolve(null);
+                    //console.log('Veículo com chassi não encontrado:', chassi);  // Log de não encontrado
+                    resolve(null);  // Retorna null se não encontrar o veículo
                 }
             });
         });
     } catch (error) {
-        throw new Error('Erro ao buscar veículo: ' + error.message);
+        console.error('Erro ao tentar buscar veículo por chassi:', chassi, error);  // Log detalhado de erro
+        throw new Error(`Erro ao buscar veículo com chassi ${chassi}: ${error.message}`);
     }
 };
+
 
 module.exports.buscarVendedorPorCodigo = async (codigo) => {
     try {
+        //console.log('Buscando vendedor com código:', codigo);  // Log para depuração
+
         return new Promise((resolve, reject) => {
-            const query = 'SELECT * FROM Vendedores WHERE codigo = ?';
+            const query = 'SELECT * FROM Vendedor WHERE codigo = ?';
             db.query(query, [codigo], (error, results) => {
                 if (error) {
-                    reject(new Error('Erro ao buscar vendedor: ' + error.message));
+                    console.error('Erro ao buscar vendedor com código:', codigo, error);  // Log do erro com contexto
+                    reject(new Error(`Erro ao buscar vendedor com código ${codigo}: ${error.message}`));
                     return;
                 }
 
                 if (results.length > 0) {
+                    //console.log('Vendedor encontrado:', results[0]);  // Log de sucesso
                     resolve(results[0]);
                 } else {
-                    resolve(null);
+                    //console.log('Vendedor com código não encontrado:', codigo);  // Log de não encontrado
+                    resolve(null);  // Retorna null se não encontrar o vendedor
                 }
             });
         });
     } catch (error) {
-        throw new Error('Erro ao buscar vendedor: ' + error.message);
+        console.error('Erro ao tentar buscar vendedor por código:', codigo, error);  // Log detalhado de erro
+        throw new Error(`Erro ao buscar vendedor com código ${codigo}: ${error.message}`);
     }
 };
+
+
 
 module.exports.inserirVenda = async (data, clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal) => {
     try {
         return new Promise((resolve, reject) => {
             db.query(
-                'INSERT INTO Vendas (data, cliente_cpf, vendedor_codigo, veiculo_chassi, valor_entrada, valor_financiado, valor_total) ' +
+                'INSERT INTO operacaovenda (data, cliente_cpf, vendedor_codigo, veiculo_chassi, valor_entrada, valor_financiado, valor_total) ' +
                 'VALUES (?, ?, ?, ?, ?, ?, ?)',
                 [data, clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal],
                 (error, results) => {
                     if (error) {
-                        reject(new Error('Erro ao registrar venda: ' + error.message));
+                        console.error('Erro ao tentar inserir venda no banco de dados:', error);  // Log do erro
+                        reject(new Error(`Erro ao tentar registrar venda no banco de dados: ${error.message}. Detalhes da consulta: ${error.stack}`));
                         return;
                     }
+                    //console.log('Venda registrada com sucesso, ID:', results.insertId);  // Log de sucesso
                     resolve(results.insertId);
                 }
             );
         });
     } catch (error) {
-        throw new Error('Erro ao registrar venda: ' + error.message);
+        console.error('Erro inesperado ao tentar registrar venda:', error);  // Log detalhado do erro
+        throw new Error(`Erro ao registrar venda: ${error.message}. Detalhes: ${error.stack}`);
+    }
+};
+
+module.exports.inserirCompra = async (data, clienteCpf, vendedorCodigo, veiculoChassi, valor) => {
+    try {
+        return new Promise((resolve, reject) => {
+            db.query(
+                'INSERT INTO operacaocompra (data, cliente_cpf, vendedor_codigo, veiculo_chassi, valor) ' +
+                'VALUES (?, ?, ?, ?, ?)',
+                [data, clienteCpf, vendedorCodigo, veiculoChassi, valor],
+                (error, results) => {
+                    if (error) {
+                        console.error('Erro ao tentar inserir compra no banco de dados:', error);  // Log detalhado do erro
+                        reject(new Error(`Erro ao tentar registrar compra no banco de dados: ${error.message}. Detalhes da consulta: ${error.stack}`));
+                        return;
+                    }
+                    resolve(results.insertId); // Retorna o ID da compra registrada
+                }
+            );
+        });
+    } catch (error) {
+        console.error('Erro inesperado ao tentar registrar compra:', error);  // Log detalhado do erro
+        throw new Error(`Erro ao registrar compra: ${error.message}. Detalhes: ${error.stack}`);
     }
 };

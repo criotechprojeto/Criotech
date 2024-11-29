@@ -17,6 +17,11 @@
         <input type="text" id="campoBusca" name="campoBusca" required><br><br>
         <button id="btnBuscar">Buscar</button>
         <button id="btnFecharPopup">Fechar</button>
+    
+        <div id="resultadosBusca" style="margin-top:20px; display:none;">
+            <h3>Resultados:</h3>
+            <ul id="listaResultados"></ul>
+        </div>
     </div>
 
     <form id="formAtualizarCliente" onsubmit="atualizarCliente(event)" style="display:none;">

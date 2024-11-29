@@ -122,65 +122,62 @@ module.exports.cadastrarMontadora = async (req, res) => {
 module.exports.buscarCliente = async (req, res) => {
     const { nomeOuCpf } = req.params;
 
-    let json = { error: '', result: {} };
+    let json = { error: '', result: [] };
 
     try {
-        let cliente = await SERVICES.buscarClientePorNomeOuCpf(nomeOuCpf);
-
-        if (cliente) {
-            json.result = cliente;
-            return res.json(json); // Retorna um JSON válido
+        const clientes = await SERVICES.buscarClientePorNomeOuCpf(nomeOuCpf);
+        console.log('Recebendo requisição para buscar cliente:', nomeOuCpf);
+        if (clientes.length > 0) {
+            json.result = clientes;
+            return res.json(json);
         } else {
-            json.error = `Cliente não encontrado com o nome ou CPF: ${nomeOuCpf}`;
-            return res.status(404).json(json); // Retorna um JSON de erro com status 404
+            json.error = `Nenhum cliente encontrado com o nome ou CPF: ${nomeOuCpf}`;
+            return res.status(404).json(json);
         }
     } catch (error) {
-        console.error('Erro ao buscar cliente:', error);
-        json.error = `Erro ao buscar cliente: ${error.message}`;
-        return res.status(500).json(json);  // Retorna um JSON com status 500 em caso de erro
+        console.error(`[ERRO] ao buscar cliente: ${error.message}`);
+        json.error = `Erro interno ao buscar cliente: ${error.message}`;
+        return res.status(500).json(json);
     }
 };
 
 module.exports.atualizarCliente = async (req, res) => {
-    let { cpf, nome, bairro, cidade, estado, telefone, celular, renda, senha } = req.body;  // Recebe os dados do corpo da requisição
-    let { nomeOuCpf } = req.params;  // Recebe o nome ou CPF da URL (usado para buscar o cliente)
+    const { cpf, nome, bairro, cidade, estado, telefone, celular, renda, senha } = req.body;
+    const { nomeOuCpf } = req.params;
 
     let json = { error: '', result: {} };
 
-    // Verificando se todos os campos obrigatórios estão presentes
     if (!nome || !bairro || !cidade || !estado || !telefone || !celular || !renda || !senha) {
         json.error = 'Todos os campos são obrigatórios, incluindo a senha para confirmação!';
         return res.status(400).json(json);
     }
 
     if (!cpf) {
-        json.error = 'CPF do cliente é obrigatório';
-        return res.status(400).json(json); // CPF não fornecido no corpo da requisição
+        json.error = 'CPF do cliente é obrigatório.';
+        return res.status(400).json(json);
     }
 
     try {
-        // Buscar o cliente pelo nome ou CPF
-        let cliente = await SERVICES.buscarClientePorNomeOuCpf(nomeOuCpf);
+        const cliente = await SERVICES.buscarClientePorNomeOuCpf(nomeOuCpf);
 
         if (!cliente) {
             json.error = `Cliente não encontrado com o nome ou CPF: ${nomeOuCpf}`;
-            return res.status(404).json(json); // Cliente não encontrado
+            return res.status(404).json(json);
         }
 
-        // Atualizar o cliente encontrado
-        let result = await SERVICES.atualizarCliente(cliente.cpf, nome, bairro, cidade, estado, telefone, celular, renda);
+        const result = await SERVICES.atualizarCliente(cliente.cpf, nome, bairro, cidade, estado, telefone, celular, renda);
 
-        if (result > 0) {  // Verifique se afetou alguma linha
+        if (result > 0) {
             json.result = { cpf: cliente.cpf, nome: cliente.nome };
-            return res.json(json);  // Cliente atualizado com sucesso
+            return res.json(json);
         } else {
-            json.error = `Cliente com CPF ${cliente.cpf} não encontrado ou nenhum dado alterado.`;
+            json.error = `Nenhuma alteração realizada no cliente com CPF ${cliente.cpf}.`;
             return res.status(404).json(json);
         }
     } catch (error) {
-        console.error('Erro ao atualizar cliente:', error);
-        json.error = `Erro ao atualizar cliente: ${error.message}`;
-        return res.status(500).json(json);  // Erro no servidor
+        console.error(`[ERRO] ao atualizar cliente: ${error.message}`);
+        json.error = `Erro interno ao atualizar cliente: ${error.message}`;
+        return res.status(500).json(json);
     }
 };
 
@@ -233,7 +230,13 @@ module.exports.registrarVenda = async (req, res) => {
 
     // Verificando se todos os dados obrigatórios foram fornecidos
     if (!clienteCpf || !vendedorCodigo || !veiculoChassi || !valorEntrada || !valorFinanciado || !valorTotal) {
-        json.error = 'Todos os campos são obrigatórios';
+        json.error = 'Todos os campos são obrigatórios. Dados ausentes: ';
+        if (!clienteCpf) json.error += 'clienteCpf, ';
+        if (!vendedorCodigo) json.error += 'vendedorCodigo, ';
+        if (!veiculoChassi) json.error += 'veiculoChassi, ';
+        if (!valorEntrada) json.error += 'valorEntrada, ';
+        if (!valorFinanciado) json.error += 'valorFinanciado, ';
+        if (!valorTotal) json.error += 'valorTotal';
         return res.status(400).json(json); // Retorna erro 400 caso algum campo obrigatório esteja ausente
     }
 
@@ -241,21 +244,21 @@ module.exports.registrarVenda = async (req, res) => {
         // Verificando se o cliente existe
         let cliente = await SERVICES.buscarClientePorNomeOuCpf(clienteCpf);
         if (!cliente) {
-            json.error = `Cliente com CPF ${clienteCpf} não encontrado.`;
+            json.error = `Cliente com CPF ${clienteCpf} não encontrado. Verifique o CPF e tente novamente.`;
             return res.status(404).json(json); // Retorna erro 404 se o cliente não for encontrado
         }
 
         // Verificando se o vendedor existe
         let vendedor = await SERVICES.buscarVendedorPorCodigo(vendedorCodigo);
         if (!vendedor) {
-            json.error = `Vendedor com código ${vendedorCodigo} não encontrado.`;
+            json.error = `Vendedor com código ${vendedorCodigo} não encontrado. Verifique o código do vendedor e tente novamente.`;
             return res.status(404).json(json); // Retorna erro 404 se o vendedor não for encontrado
         }
 
         // Verificando se o veículo existe e está disponível para venda
         let veiculo = await SERVICES.buscarVeiculoPorChassi(veiculoChassi);
         if (!veiculo) {
-            json.error = `Veículo com chassi ${veiculoChassi} não encontrado.`;
+            json.error = `Veículo com chassi ${veiculoChassi} não encontrado ou indisponível para venda.`;
             return res.status(404).json(json); // Retorna erro 404 se o veículo não for encontrado
         }
 
@@ -267,8 +270,63 @@ module.exports.registrarVenda = async (req, res) => {
         json.result = { vendaId, clienteCpf, vendedorCodigo, veiculoChassi, valorEntrada, valorFinanciado, valorTotal };
         return res.json(json); // Retorna sucesso com os dados da venda registrada
     } catch (error) {
-        console.error('Erro ao registrar venda:', error);
-        json.error = `Erro ao registrar venda: ${error.message}`;
+        console.error('Erro inesperado ao registrar venda:', error);  // Log detalhado do erro
+        json.error = `Erro inesperado ao registrar venda: ${error.message}. Detalhes: ${error.stack}`;
         return res.status(500).json(json); // Retorna erro 500 em caso de falha no servidor
     }
 };
+
+module.exports.registrarCompra = async (req, res) => {
+    let json = { error: '', result: {} };
+    let { clienteCpf, vendedorCodigo, veiculoChassi, valor } = req.body;
+  
+    // Verificando se todos os dados obrigatórios foram fornecidos
+    if (!clienteCpf || !vendedorCodigo || !veiculoChassi || !valor) {
+      json.error = 'Todos os campos são obrigatórios. Dados ausentes: ';
+      if (!clienteCpf) json.error += 'clienteCpf, ';
+      if (!vendedorCodigo) json.error += 'vendedorCodigo, ';
+      if (!veiculoChassi) json.error += 'veiculoChassi, ';
+      if (!valor) json.error += 'valor';
+      return res.status(400).json(json); // Retorna erro 400 caso algum campo obrigatório esteja ausente
+    }
+  
+    try {
+      // Verificando se o cliente existe
+      let cliente = await SERVICES.buscarClientePorNomeOuCpf(clienteCpf);
+      if (!cliente) {
+        json.error = `Cliente com CPF ${clienteCpf} não encontrado. Verifique o CPF e tente novamente.`;
+        return res.status(404).json(json); // Retorna erro 404 se o cliente não for encontrado
+      }
+  
+      // Verificando se o vendedor existe
+      let vendedor = await SERVICES.buscarVendedorPorCodigo(vendedorCodigo);
+      if (!vendedor) {
+        json.error = `Vendedor com código ${vendedorCodigo} não encontrado. Verifique o código do vendedor e tente novamente.`;
+        return res.status(404).json(json); // Retorna erro 404 se o vendedor não for encontrado
+      }
+  
+      // Verificando se o veículo existe e está disponível para compra
+      let veiculo = await SERVICES.buscarVeiculoPorChassi(veiculoChassi);
+      if (!veiculo) {
+        json.error = `Veículo com chassi ${veiculoChassi} não encontrado ou indisponível para compra.`;
+        return res.status(404).json(json); // Retorna erro 404 se o veículo não for encontrado
+      }
+  
+      // Inserir a compra no banco de dados
+      let data = new Date().toISOString().split('T')[0]; // Data no formato 'YYYY-MM-DD'
+      let compraId = await SERVICES.inserirCompra(data, clienteCpf, vendedorCodigo, veiculoChassi, valor);
+  
+      // Retorna a resposta com o ID da compra registrada
+      json.result = { compraId, clienteCpf, vendedorCodigo, veiculoChassi, valor };
+      return res.json(json); // Retorna sucesso com os dados da compra registrada
+    } catch (error) {
+      console.error('Erro inesperado ao registrar compra:', error);  // Log detalhado do erro
+      json.error = `Erro inesperado ao registrar compra: ${error.message}. Detalhes: ${error.stack}`;
+      return res.status(500).json(json); // Retorna erro 500 em caso de falha no servidor
+    }
+  };
+  
+
+
+
+
